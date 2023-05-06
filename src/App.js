@@ -2,6 +2,8 @@ import './App.css';
 import Form from './Form'
 import Chart1 from './Chart1'
 import Chart2 from './Chart2'
+import Chart3 from './Chart3'
+import Chart4 from './Chart4'
 import { useState } from "react";
 
 export default function App() {
@@ -11,7 +13,8 @@ export default function App() {
   let chartsComponents = {
     "Additions based on pull requests' author": Chart1,
     "Deletions based on pull requests' author": Chart2,
-    "Radar": null,
+    "Balance based on pull requests' author": Chart3,
+    "Commits in pull requests per author": Chart4,
     "Doughnut": null,
     "Pie": null,
     "Polar": null,

@@ -62,7 +62,7 @@ export default function Chart1({ values }) {
 		<div className="chart">
 			{chartData ? (
 				// Render the Plot component with the chart data and layout
-				<Plot data={chartData} layout={{ title: 'Additions by Author' }} />
+				<Plot data={chartData} layout={{ title: "Additions based on pull requests' author" }} />
 			) : (
 				// Show a loading message if chart data is not available
 				<div>Loading chart data...</div>

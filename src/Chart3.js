@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import './Chart.css'
 
-export default function Chart2({ values }) {
+export default function Chart3({ values }) {
 	// State to hold the chart data
 	const [chartData, setChartData] = useState(null);
 
@@ -20,16 +20,16 @@ export default function Chart2({ values }) {
 				values.endDate
 			);
 
-			// Group pull requests by author and calculate the sum of deletions for each author
+			// Group pull requests by author and calculate the sum of balances for each author
 			const authors = _.groupBy(pullRequests, pr => pr.node.author.login);
 			const authorNames = Object.keys(authors);
-			const deletions = authorNames.map(author => authors[author].reduce((sum, pr) => sum + pr.node.deletions, 0));
+			const balance = authorNames.map(author => authors[author].reduce((sum, pr) => sum + pr.balance, 0));
 
 			// Prepare the chart data object
 			const data = [
 				{
 					x: authorNames,
-					y: deletions,
+					y: balance,
 					type: 'bar',
 				},
 			];
@@ -48,7 +48,9 @@ export default function Chart2({ values }) {
 				// Render the Plot component with the chart data and layout
 				<Plot
 					data={chartData}
-					layout={{ title: "Deletions based on pull requests' author" }}
+					layout={{
+						title: "Balance based on pull requests' author"
+					}}
 				/>
 			) : (
 				// Show a loading message if chart data is not available
