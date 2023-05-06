@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/core';
 
 export const getPullRequests = async (owner, repo, authToken, startDate, endDate) => {
-	// Define the GraphQL query to retrieve pull requests
+	// Define the GraphQL query to retrieve pull requests and their commits
 	const query = `
     query {
       repository(owner: "${owner}", name: "${repo}") {
@@ -16,6 +16,9 @@ export const getPullRequests = async (owner, repo, authToken, startDate, endDate
               title
               additions
               deletions
+              commits {
+                totalCount
+              }
             }
           }
         }
