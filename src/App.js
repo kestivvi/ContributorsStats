@@ -1,6 +1,7 @@
 import './App.css';
 import Form from './Form'
 import Chart1 from './Chart1'
+import Chart2 from './Chart2'
 import { useState } from "react";
 
 export default function App() {
@@ -9,7 +10,7 @@ export default function App() {
 
   let chartsComponents = {
     "Additions based on pull requests' author": Chart1,
-    "Bar": null,
+    "Deletions based on pull requests' author": Chart2,
     "Radar": null,
     "Doughnut": null,
     "Pie": null,
@@ -20,18 +21,14 @@ export default function App() {
 
 
   const onClick = async (values) => {
-    // Check what type of chart user wants
-    console.log(values.chartTypes)
+    const newCharts = [];
 
     for (const chartType of values.selectedCharts) {
-      if (chartType == "Additions based on pull requests' author") {
-        setCharts(charts.concat(<Chart1 values={values} />));
-      }
+      const ChartComponent = chartsComponents[chartType];
+      newCharts.push(<ChartComponent key={chartType} values={values} />);
     }
 
-
-    console.log(charts)
-
+    setCharts(newCharts);
   };
 
   return (

@@ -1,96 +1,72 @@
-import { Octokit } from '@octokit/core';
-import _ from "lodash";
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
-import './Chart.css'
+import './Chart.css';
+import { getPullRequests } from './utils';
 
 export default function Chart1({ values }) {
+	// State to hold the chart data
 	const [chartData, setChartData] = useState(null);
 
 	useEffect(() => {
-		async function fetchData() {
-			const pullRequests = await getPullRequests(values);
+		// Function to fetch the pull requests and update the chart data
+		const fetchData = async () => {
+			try {
+				// Fetch the pull requests using the provided values
+				const pullRequests = await getPullRequests(
+					values.owner,
+					values.repo,
+					values.APItoken,
+					values.startDate,
+					values.endDate
+				);
 
-			// Extract authors and their additions
-			const authors = _.groupBy(pullRequests, pr => pr.node.author.login);
-			const authorNames = Object.keys(authors);
-			const additions = authorNames.map(author => authors[author].reduce((sum, pr) => sum + pr.node.additions, 0));
+				// Group pull requests by author and calculate the sum of additions for each author
+				const authors = pullRequests.reduce((groupedAuthors, pr) => {
+					const author = pr.node.author.login;
+					const additions = pr.node.additions;
 
-			// Create data for the bar chart
-			const data = [
-				{
-					x: authorNames,
-					y: additions,
-					type: 'bar',
-				},
-			];
+					if (groupedAuthors[author]) {
+						groupedAuthors[author] += additions;
+					} else {
+						groupedAuthors[author] = additions;
+					}
 
-			setChartData(data);
-		}
+					return groupedAuthors;
+				}, {});
 
+				// Extract author names and additions into separate arrays for chart data
+				const authorNames = Object.keys(authors);
+				const additions = authorNames.map(author => authors[author]);
+
+				// Prepare the chart data object
+				const data = [
+					{
+						x: authorNames,
+						y: additions,
+						type: 'bar',
+					},
+				];
+
+				// Update the chart data state
+				setChartData(data);
+			} catch (error) {
+				console.error('Error fetching pull requests:', error);
+			}
+		};
+
+		// Fetch data when the component mounts and when the 'values' prop changes
 		fetchData();
 	}, [values]);
 
 	return (
-		<div className='chart'>
+		<div className="chart">
 			{chartData ? (
-				<Plot
-					data={chartData}
-					layout={{ title: 'Additions by Author' }}
-				/>
+				// Render the Plot component with the chart data and layout
+				<Plot data={chartData} layout={{ title: 'Additions by Author' }} />
 			) : (
+				// Show a loading message if chart data is not available
 				<div>Loading chart data...</div>
 			)}
 		</div>
 	);
-}
-
-const getPullRequests = async (values) => {
-	const query = `
-		query {
-			repository(owner: "${values.owner}", name: "${values.repo}") {
-				pullRequests(first: 100, states: MERGED, orderBy: { field: UPDATED_AT, direction: ASC }) {
-					edges {
-						node {
-							createdAt
-							mergedAt
-							author {
-								login
-							}
-							title
-							additions
-							deletions
-						}
-					}
-				}
-			}
-		}
-	`;
-
-	const variables = {};
-
-	const octokit = new Octokit({ auth: values.APItoken });
-	const response = await octokit.graphql({ query, variables });
-	const pullRequests = response.repository.pullRequests.edges;
-
-
-	const startDate = new Date(values.startDate);
-	const endDate = new Date(values.endDate);
-	const filteredPullRequests = pullRequests.filter(pr => {
-		const mergedAt = new Date(pr.node.mergedAt);
-		return mergedAt >= startDate && mergedAt <= endDate;
-	});
-
-	return filteredPullRequests;
-
-	// filteredPullRequests.forEach(pr => {
-	// 	const { title, author, additions, deletions } = pr.node;
-	// 	const balance = additions - deletions;
-
-	// 	console.log("Title:", title);
-	// 	console.log("Author:", author.login);
-	// 	console.log("Added Lines:", additions);
-	// 	console.log("Deleted Lines:", deletions);
-	// 	console.log("Balance:", balance);
-	// });
 }
