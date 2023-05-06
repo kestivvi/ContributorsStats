@@ -4,6 +4,7 @@ import Chart1 from './Chart1'
 import Chart2 from './Chart2'
 import Chart3 from './Chart3'
 import Chart4 from './Chart4'
+import Chart5 from './Chart5'
 import { useState } from "react";
 
 export default function App() {
@@ -14,7 +15,8 @@ export default function App() {
     "Additions based on pull requests' author": Chart1,
     "Deletions based on pull requests' author": Chart2,
     "Balance based on pull requests' author": Chart3,
-    "Commits in pull requests per author": Chart4,
+    "Commits per author based on pull requests'": Chart4,
+    "Number of pull requests per author": Chart5,
     "Doughnut": null,
     "Pie": null,
     "Polar": null,

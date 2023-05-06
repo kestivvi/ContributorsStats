@@ -1,4 +1,4 @@
-import { getPullRequests } from "./utils";
+import { getContributorsStatsBasedOnPullRequests } from "./utils";
 import _ from "lodash";
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
@@ -11,8 +11,9 @@ export default function Chart2({ values }) {
 	useEffect(() => {
 		// Function to fetch the pull requests and update the chart data
 		async function fetchData() {
+
 			// Fetch the pull requests using the provided values
-			const pullRequests = await getPullRequests(
+			const contributorsStats = await getContributorsStatsBasedOnPullRequests(
 				values.owner,
 				values.repo,
 				values.APItoken,
@@ -20,10 +21,8 @@ export default function Chart2({ values }) {
 				values.endDate
 			);
 
-			// Group pull requests by author and calculate the sum of deletions for each author
-			const authors = _.groupBy(pullRequests, pr => pr.node.author.login);
-			const authorNames = Object.keys(authors);
-			const deletions = authorNames.map(author => authors[author].reduce((sum, pr) => sum + pr.node.deletions, 0));
+			const authorNames = Object.keys(contributorsStats);
+			const deletions = authorNames.map(author => contributorsStats[author].deletions);
 
 			// Prepare the chart data object
 			const data = [

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import './Chart.css';
-import { getPullRequests } from './utils';
+import { getContributorsStatsBasedOnPullRequests } from './utils';
 
 export default function Chart1({ values }) {
 	// State to hold the chart data
@@ -12,7 +12,7 @@ export default function Chart1({ values }) {
 		const fetchData = async () => {
 			try {
 				// Fetch the pull requests using the provided values
-				const pullRequests = await getPullRequests(
+				const contributorsStats = await getContributorsStatsBasedOnPullRequests(
 					values.owner,
 					values.repo,
 					values.APItoken,
@@ -20,23 +20,9 @@ export default function Chart1({ values }) {
 					values.endDate
 				);
 
-				// Group pull requests by author and calculate the sum of additions for each author
-				const authors = pullRequests.reduce((groupedAuthors, pr) => {
-					const author = pr.node.author.login;
-					const additions = pr.node.additions;
-
-					if (groupedAuthors[author]) {
-						groupedAuthors[author] += additions;
-					} else {
-						groupedAuthors[author] = additions;
-					}
-
-					return groupedAuthors;
-				}, {});
-
 				// Extract author names and additions into separate arrays for chart data
-				const authorNames = Object.keys(authors);
-				const additions = authorNames.map(author => authors[author]);
+				const authorNames = Object.keys(contributorsStats);
+				const additions = authorNames.map(author => contributorsStats[author].additions);
 
 				// Prepare the chart data object
 				const data = [

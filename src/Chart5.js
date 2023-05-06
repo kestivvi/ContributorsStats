@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import './Chart.css'
 
-export default function Chart4({ values }) {
+export default function Chart5({ values }) {
 	// State to hold the chart data
 	const [chartData, setChartData] = useState(null);
 
@@ -21,13 +21,13 @@ export default function Chart4({ values }) {
 			);
 
 			const authorNames = Object.keys(contributorsStats);
-			const commitsCount = authorNames.map(author => contributorsStats[author].commitsCount);
+			const pullRequestCount = authorNames.map(author => contributorsStats[author].pullRequestCount);
 
 			// Prepare the chart data object
 			const data = [
 				{
 					x: authorNames,
-					y: commitsCount,
+					y: pullRequestCount,
 					type: 'bar',
 				},
 			];
@@ -47,7 +47,7 @@ export default function Chart4({ values }) {
 				<Plot
 					data={chartData}
 					layout={{
-						title: "Commits in pull requests per author"
+						title: "Number of pull requests per author"
 					}}
 				/>
 			) : (

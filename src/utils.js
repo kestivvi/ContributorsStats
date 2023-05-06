@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/core';
 
-export const getPullRequests = async (owner, repo, authToken, startDate, endDate) => {
-	// Define the GraphQL query to retrieve pull requests and their commits
+// Function to retrieve pull requests using GraphQL
+const getPullRequests = async (owner, repo, authToken) => {
 	const query = `
     query {
       repository(owner: "${owner}", name: "${repo}") {
@@ -27,36 +27,56 @@ export const getPullRequests = async (owner, repo, authToken, startDate, endDate
   `;
 
 	const variables = {};
-
-	// Create an instance of the Octokit with the provided authentication token
 	const octokit = new Octokit({ auth: authToken });
-
-	// Send the GraphQL request to retrieve pull requests
 	const response = await octokit.graphql({ query, variables });
 
-	// Extract the pull requests from the GraphQL response
-	const pullRequests = response.repository.pullRequests.edges;
+	return response.repository.pullRequests.edges;
+};
 
-	// Convert the start and end dates to Date objects
+// Function to filter pull requests based on date range
+const filterPullRequestsByDateRange = (pullRequests, startDate, endDate) => {
 	const start = new Date(startDate);
 	const end = new Date(endDate);
 
-	// Filter the pull requests based on the merged date falling within the specified range
-	const filteredPullRequests = pullRequests.filter(pr => {
+	return pullRequests.filter(pr => {
 		const mergedAt = new Date(pr.node.mergedAt);
 		return mergedAt >= start && mergedAt <= end;
 	});
+};
 
-	// Add the balance of lines of code (added - deleted) to each pull request
-	const pullRequestsWithBalance = filteredPullRequests.map(pr => {
-		const { additions, deletions } = pr.node;
-		console.log(additions, deletions);
-		const balance = additions - deletions;
-		return {
-			...pr,
-			balance
-		};
+// Function to calculate contributor statistics
+const calculateContributorStats = (pullRequests) => {
+	const contributorsStats = {};
+
+	pullRequests.forEach(pr => {
+		const { author, commits, additions, deletions } = pr.node;
+		const authorLogin = author.login;
+
+		if (!contributorsStats[authorLogin]) {
+			contributorsStats[authorLogin] = {
+				commitsCount: 0,
+				additions: 0,
+				deletions: 0,
+				balance: 0,
+				pullRequestCount: 0
+			};
+		}
+
+		contributorsStats[authorLogin].commitsCount += commits.totalCount;
+		contributorsStats[authorLogin].additions += additions;
+		contributorsStats[authorLogin].deletions += deletions;
+		contributorsStats[authorLogin].balance += additions - deletions;
+		contributorsStats[authorLogin].pullRequestCount++;
 	});
 
-	return pullRequestsWithBalance;
+	return contributorsStats;
+};
+
+// Main function to get contributor statistics based on pull requests
+export const getContributorsStatsBasedOnPullRequests = async (owner, repo, authToken, startDate, endDate) => {
+	const pullRequests = await getPullRequests(owner, repo, authToken);
+	const filteredPullRequests = filterPullRequestsByDateRange(pullRequests, startDate, endDate);
+	const contributorsStats = calculateContributorStats(filteredPullRequests);
+
+	return contributorsStats;
 };
