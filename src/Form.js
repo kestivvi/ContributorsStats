@@ -3,9 +3,9 @@ import { map } from 'lodash'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-function Form({ chartTypes, onClick }) {
+import React from 'react';
 
-	let option_list = map(chartTypes, (type) => <option key={type} value={type}>{type}</option>)
+function Form({ chartTypes, onClick }) {
 
 	let formik = useFormik({
 		initialValues: {
@@ -14,7 +14,7 @@ function Form({ chartTypes, onClick }) {
 			repo: '',
 			startDate: '',
 			endDate: '',
-			chartType: chartTypes[0],
+			selectedCharts: [],
 		},
 		validationSchema: Yup.object({
 			APItoken: Yup.string().required('GitHub API Token must be provided!'),
@@ -28,6 +28,11 @@ function Form({ chartTypes, onClick }) {
 			onClick(values)
 		}
 	});
+
+	const handleChartTypeChange = (event) => {
+		const selectedOptions = Array.from(event.target.selectedOptions, (option) => option.value);
+		formik.setFieldValue('selectedCharts', selectedOptions);
+	};
 
 	return (
 		<form onSubmit={formik.handleSubmit} className="Form">
@@ -99,14 +104,19 @@ function Form({ chartTypes, onClick }) {
 
 			<div className='item'>
 				<label htmlFor="chartType">Chart Type</label>
-				{formik.touched.chartType && formik.errors.chartType && <div className="errorLabel">{formik.errors.chartType}</div>}
-				{formik.touched.chartType && formik.errors.chartType && <div className="errorLabel">{formik.errors.chartType}</div>}
+				{formik.touched.selectedCharts && formik.errors.selectedCharts && <div className="errorLabel">{formik.errors.selectedCharts}</div>}
+				{formik.touched.selectedCharts && formik.errors.selectedCharts && <div className="errorLabel">{formik.errors.selectedCharts}</div>}
 				<select
-					value={formik.values.chartType}
-					onChange={formik.handleChange}
+					multiple
+					value={formik.values.selectedCharts}
+					onChange={handleChartTypeChange}
 					onBlur={formik.handleBlur}
 					id="chartType">
-					{option_list}
+					{map(chartTypes, (type) => (
+						<option key={type} value={type}>
+							{type}
+						</option>
+					))}
 				</select>
 			</div>
 

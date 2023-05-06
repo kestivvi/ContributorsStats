@@ -5,33 +5,32 @@ import { useState } from "react";
 
 export default function App() {
 
-  let [chart, setChart] = useState("");
-  let chart_types = [
-    "Additions based on pull requests' author",
-    "Bar",
-    "Radar",
-    "Doughnut",
-    "Pie",
-    "Polar",
-  ]
+  let [charts, setCharts] = useState([]);
 
+  let chartsComponents = {
+    "Additions based on pull requests' author": Chart1,
+    "Bar": null,
+    "Radar": null,
+    "Doughnut": null,
+    "Pie": null,
+    "Polar": null,
+  }
+
+  let chart_types = Object.keys(chartsComponents);
 
 
   const onClick = async (values) => {
     // Check what type of chart user wants
-    console.log(values.chartType)
-    switch (values.chartType) {
-      case "Additions based on pull requests' author":
-        setChart(<Chart1 values={values} />)
-        break;
+    console.log(values.chartTypes)
 
-      default:
-        break;
+    for (const chartType of values.selectedCharts) {
+      if (chartType == "Additions based on pull requests' author") {
+        setCharts(charts.concat(<Chart1 values={values} />));
+      }
     }
 
-    // Generate that chart
 
-
+    console.log(charts)
 
   };
 
@@ -39,8 +38,7 @@ export default function App() {
     <div className="App">
       {/* TODO: HEADER */}
       <Form chartTypes={chart_types} onClick={onClick} />
-      {/* TODO: Wykres */}
-      {chart}
+      {charts}
     </div>
   );
 }
