@@ -40,7 +40,7 @@ function Form({ chartTypes, onClick }) {
 				<label htmlFor="APItoken">GitHub API Token</label>
 				{formik.touched.APItoken && formik.errors.APItoken && <div className="errorLabel">{formik.errors.APItoken}</div>}
 				<input
-					type="text"
+					type="password"
 					className={formik.touched.APItoken && formik.errors.APItoken ? "errorInput" : ""}
 					value={formik.values.APItoken}
 					onChange={formik.handleChange}
